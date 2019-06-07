@@ -89,7 +89,25 @@ public class BufferedRecords {
           fieldsMetadata
       );
 
-      final String sql = getInsertSql();
+      String upSetAp = " ";
+
+      if (config.updateSetAppend != null) {
+        upSetAp = ", " + config.updateSetAppend;
+      }
+
+      String upWhereAp = " ";
+
+      if (config.updateWhereAppend != null) {
+        upWhereAp = config.updateWhereAppend + " AND ";
+      }
+
+      final String sql = getInsertSql().replaceAll(
+          " WHERE ",
+          upSetAp
+          + " WHERE "
+          + upWhereAp
+      );
+      
       log.debug(
           "{} sql: {}",
           config.insertMode,

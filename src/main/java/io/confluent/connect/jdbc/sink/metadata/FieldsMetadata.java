@@ -245,6 +245,7 @@ public class FieldsMetadata {
         keyFieldNames.add(keyField.name());
       }
     } else {
+      /* Allow non-PK fields in where clause...
       for (String fieldName : configuredPkFields) {
         if (valueSchema.field(fieldName) == null) {
           throw new ConnectException(String.format(
@@ -254,6 +255,7 @@ public class FieldsMetadata {
           ));
         }
       }
+      */
       keyFieldNames.addAll(configuredPkFields);
     }
     for (String fieldName : keyFieldNames) {

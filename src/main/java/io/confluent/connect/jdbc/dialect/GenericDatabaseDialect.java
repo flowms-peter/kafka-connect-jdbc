@@ -1387,6 +1387,8 @@ public class GenericDatabaseDialect implements DatabaseDialect {
              .delimitedBy(" AND ")
              .transformedBy(ExpressionBuilder.columnNamesWith(" = ?"))
              .of(keyColumns);
+    } else {
+      throw new ConnectException("Not allowed to execute UPDATE without WHERE clause");
     }
     return builder.toString();
   }

@@ -200,7 +200,7 @@ public class TimestampIncrementingTableQuerier extends TableQuerier implements C
 
   @Override
   public Timestamp endTimetampValue()  throws SQLException {
-    final long currentDbTime = dialect.currentTimeOnDB(
+    long currentDbTime = dialect.currentTimeOnDB(
         stmt.getConnection(),
         DateTimeUtils.getTimeZoneCalendar(timeZone)
     ).getTime();

@@ -173,6 +173,20 @@ public class JdbcSinkConfig extends AbstractConfig {
       + " while this configuration is applicable for the other columns.";
   private static final String FIELDS_WHITELIST_DISPLAY = "Fields Whitelist";
 
+  public static final String UPDATE_SETAPPEND = "update.setappend";
+  private static final String UPDATE_SETAPPEND_DEFAULT = "";
+  private static final String UPDATE_SETAPPEND_DOC =
+      "allows to append an SQL string for sink in update mode "
+      + "i.e. append mod_date_time = now()";
+  private static final String UPDATE_SETAPPEND_DISPLAY = "Update-SetAppend";
+
+  public static final String UPDATE_WHEREAPPEND = "update.whereappend";
+  private static final String UPDATE_WHEREAPPEND_DEFAULT = "";
+  private static final String UPDATE_WHEREAPPEND_DOC =
+      "allows to append an SQL string for sink in update mode "
+      + "i.e. append AND status = 0";
+  private static final String UPDATE_WHEREAPPEND_DISPLAY = "Update-WhereAppend";
+
   private static final ConfigDef.Range NON_NEGATIVE_INT_VALIDATOR = ConfigDef.Range.atLeast(0);
 
   private static final String CONNECTION_GROUP = "Connection";
@@ -326,17 +340,40 @@ public class JdbcSinkConfig extends AbstractConfig {
             4,
             ConfigDef.Width.LONG,
             FIELDS_WHITELIST_DISPLAY
-        ).define(
-          DB_TIMEZONE_CONFIG,
-          ConfigDef.Type.STRING,
-          DB_TIMEZONE_DEFAULT,
-          TimeZoneValidator.INSTANCE,
-          ConfigDef.Importance.MEDIUM,
-          DB_TIMEZONE_CONFIG_DOC,
-          DATAMAPPING_GROUP,
-          5,
-          ConfigDef.Width.MEDIUM,
-          DB_TIMEZONE_CONFIG_DISPLAY
+        )
+        .define(
+            DB_TIMEZONE_CONFIG,
+            ConfigDef.Type.STRING,
+            DB_TIMEZONE_DEFAULT,
+            TimeZoneValidator.INSTANCE,
+            ConfigDef.Importance.MEDIUM,
+            DB_TIMEZONE_CONFIG_DOC,
+            DATAMAPPING_GROUP,
+            5,
+            ConfigDef.Width.MEDIUM,
+            DB_TIMEZONE_CONFIG_DISPLAY
+        )
+        .define(
+            UPDATE_SETAPPEND,
+            ConfigDef.Type.STRING,
+            null,
+            ConfigDef.Importance.MEDIUM,
+            UPDATE_SETAPPEND_DOC,
+            DATAMAPPING_GROUP,
+            6,
+            ConfigDef.Width.LONG,
+            UPDATE_SETAPPEND_DISPLAY
+        )
+        .define(
+            UPDATE_WHEREAPPEND,
+            ConfigDef.Type.STRING,
+            null,
+            ConfigDef.Importance.MEDIUM,
+            UPDATE_WHEREAPPEND_DOC,
+            DATAMAPPING_GROUP,
+            7,
+            ConfigDef.Width.LONG,
+            UPDATE_WHEREAPPEND_DISPLAY
         )
         // DDL
         .define(
@@ -400,6 +437,8 @@ public class JdbcSinkConfig extends AbstractConfig {
   public final String connectionUser;
   public final String connectionPassword;
   public final String tableNameFormat;
+  public final String updateSetAppend;
+  public final String updateWhereAppend;
   public final int batchSize;
   public final int maxRetries;
   public final int retryBackoffMs;
@@ -430,6 +469,8 @@ public class JdbcSinkConfig extends AbstractConfig {
     fieldsWhitelist = new HashSet<>(getList(FIELDS_WHITELIST));
     String dbTimeZone = getString(DB_TIMEZONE_CONFIG);
     timeZone = TimeZone.getTimeZone(ZoneId.of(dbTimeZone));
+    updateSetAppend = getString(UPDATE_SETAPPEND);
+    updateWhereAppend = getString(UPDATE_WHEREAPPEND);
   }
 
   private String getPasswordValue(String key) {
