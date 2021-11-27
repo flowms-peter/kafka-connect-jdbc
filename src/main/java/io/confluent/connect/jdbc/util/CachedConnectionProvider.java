@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Executors;
 
 import io.confluent.connect.jdbc.source.JdbcSourceConnectorConfig;
 
@@ -86,6 +87,8 @@ public class CachedConnectionProvider implements ConnectionProvider {
         ++count;
         log.info("Attempting to open connection #{} to {}", count, provider);
         connection = provider.getConnection();
+        connection.setNetworkTimeout(Executors.newSingleThreadExecutor(),
+                   (int) connectionRetryBackoff);
         onConnect(connection);
         return;
       } catch (SQLException sqle) {
