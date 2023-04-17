@@ -213,6 +213,15 @@ public class TimestampIncrementingTableQuerier extends TableQuerier implements C
   }
 
   @Override
+  public Timestamp queryTimeStampValue() {
+    if (query.contains("?")) {
+      return offset.getTimestampOffset();
+
+    }
+    return null;
+  }
+
+  @Override
   public String toString() {
     return "TimestampIncrementingTableQuerier{"
            + "table=" + tableId

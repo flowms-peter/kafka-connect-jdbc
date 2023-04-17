@@ -64,6 +64,14 @@ public class TimestampIncrementingCriteria {
      * @throws SQLException if there is a problem accessing the value
      */
     Long lastIncrementedValue() throws SQLException;
+
+    /**
+     * Get the beginning of the time period for the query-embedded variable
+     *
+     * @return the beginning timestamp; may be null
+     * @throws SQLException if there is a problem accessing the value
+     */
+    Timestamp queryTimeStampValue() throws SQLException;
   }
 
   protected static final BigDecimal LONG_MAX_VALUE_AS_BIGDEC = new BigDecimal(Long.MAX_VALUE);
@@ -120,13 +128,34 @@ public class TimestampIncrementingCriteria {
       PreparedStatement stmt,
       CriteriaValues values
   ) throws SQLException {
-    if (hasTimestampColumns() && hasIncrementedColumn()) {
+    if (hasTimestampColumns() && hasIncrementedColumn() && values.queryTimeStampValue() != null) {
+      setQueryParametersTimestampIncrementingQuery(stmt, values);
+    } else if (hasTimestampColumns() && hasIncrementedColumn()) {
       setQueryParametersTimestampIncrementing(stmt, values);
     } else if (hasTimestampColumns()) {
       setQueryParametersTimestamp(stmt, values);
     } else if (hasIncrementedColumn()) {
       setQueryParametersIncrementing(stmt, values);
     }
+  }
+
+  protected void setQueryParametersTimestampIncrementingQuery(
+      PreparedStatement stmt,
+      CriteriaValues values
+  ) throws SQLException {
+    Timestamp beginTime = values.beginTimetampValue();
+    Timestamp endTime = values.endTimetampValue();
+    Long incOffset = values.lastIncrementedValue();
+    stmt.setTimestamp(1, beginTime, DateTimeUtils.getTimeZoneCalendar(timeZone));
+    stmt.setTimestamp(2, endTime, DateTimeUtils.getTimeZoneCalendar(timeZone));
+    stmt.setTimestamp(3, beginTime, DateTimeUtils.getTimeZoneCalendar(timeZone));
+    stmt.setLong(4, incOffset);
+    stmt.setTimestamp(5, beginTime, DateTimeUtils.getTimeZoneCalendar(timeZone));
+    log.debug(
+        "Executing prepared statement with Query var and start time value = {} end time = {} "
+        + "and incrementing value = {}", DateTimeUtils.formatTimestamp(beginTime, timeZone),
+        DateTimeUtils.formatTimestamp(endTime, timeZone), incOffset
+    );
   }
 
   protected void setQueryParametersTimestampIncrementing(
