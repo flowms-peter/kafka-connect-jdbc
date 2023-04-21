@@ -503,6 +503,40 @@ public class GenericDatabaseDialect implements DatabaseDialect {
     return "SELECT CURRENT_TIMESTAMP";
   }
 
+  /**
+   * Return Previous Journal Receiver at the database
+   *
+   * @param conn database connection
+   * @return the Previous Journal Receiver from the database
+   */
+  @Override
+  public String prevJournalReceiver(
+      Connection db
+  ) throws SQLException, ConnectException {
+    String query = journalReceiverQuery();
+    assert query != null;
+    assert !query.isEmpty();
+    try (Statement stmt = db.createStatement()) {
+      log.debug("executing query " + query + " to get Prev Journal Rcvr from database");
+      try (ResultSet rs = stmt.executeQuery(query)) {
+        if (rs.next()) {
+          return rs.getString("OBJNAME");
+        } else {
+          throw new ConnectException(
+              "Unable to get get Prev Journal Rcvr using " + this + " and query '" + query + "'"
+          );
+        }
+      }
+    } catch (SQLException e) {
+      log.error("Failed to get Prev Journal Rcvr  using {} and query '{}'", this, query, e);
+      throw e;
+    }
+  }
+
+  protected String journalReceiverQuery() {
+    return "SELECT 'N/A' FROM DUAL";
+  }
+
   @Override
   public boolean tableExists(
       Connection connection,

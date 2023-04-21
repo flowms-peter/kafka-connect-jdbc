@@ -41,7 +41,7 @@ public class Db2DatabaseDialect extends GenericDatabaseDialect {
    */
   public static class Provider extends SubprotocolBasedProvider {
     public Provider() {
-      super(Db2DatabaseDialect.class.getSimpleName(), "db2", "db2j", "ibmdb");
+      super(Db2DatabaseDialect.class.getSimpleName(), "db2", "db2j", "ibmdb", "as400");
     }
 
     @Override
@@ -67,6 +67,13 @@ public class Db2DatabaseDialect extends GenericDatabaseDialect {
   @Override
   protected String checkConnectionQuery() {
     return "SELECT 1 FROM SYSIBM.SYSDUMMY1";
+  }
+
+  @Override
+  protected String journalReceiverQuery() {
+    return "SELECT OBJNAME FROM (SELECT OBJNAME FROM "
+      + "TABLE(QSYS2.OBJECT_STATISTICS('WM360BASD','*JRNRCV','*ALLSIMPLE')) "
+      + "ORDER BY objname DESC LIMIT 2) AS x ORDER BY objname asc LIMIT 1";
   }
 
   @Override

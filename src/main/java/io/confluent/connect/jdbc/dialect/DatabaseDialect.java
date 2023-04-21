@@ -183,6 +183,11 @@ public interface DatabaseDialect extends ConnectionProvider {
       Calendar cal
   ) throws SQLException, ConnectException;
 
+  // Custom for DB2 only at this point
+  String prevJournalReceiver(
+      Connection conn
+  ) throws SQLException, ConnectException;
+
   /**
    * Get a list of identifiers of the non-system tables in the database.
    *

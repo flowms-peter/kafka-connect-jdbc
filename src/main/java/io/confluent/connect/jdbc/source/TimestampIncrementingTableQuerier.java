@@ -126,8 +126,21 @@ public class TimestampIncrementingTableQuerier extends TableQuerier implements C
         builder.append(tableId);
         break;
       case QUERY:
-        builder.append(query);
-        break;
+        // For Jockey - we need to get the previous Journal in the chain to ensure good performance
+        // without losing data when using DISPLAY_JOURNAL
+        // If the Query contains *PREVJRNRCV, get the receiver and replace with the fileName
+        if (query.contains("*PREVJRNRCV")) {
+          // get the receiver name from the dialect... This can only be user by the DB2 dialect
+          log.info("Query Contains *PREVJRNRCV");
+          String previousJournalReceiver = dialect.prevJournalReceiver(
+              db);
+          log.info("*PREVJRNRCV to be set to {}", previousJournalReceiver);
+          builder.append(query.replace("*PREVJRNRCV", previousJournalReceiver));
+          break;
+        } else {
+          builder.append(query);
+          break;
+        }
       default:
         throw new ConnectException("Unknown mode encountered when preparing query: " + mode);
     }
